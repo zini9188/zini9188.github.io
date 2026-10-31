@@ -7,11 +7,16 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "lint:md": "markdownlint-cli2",
+    "check:links": "node scripts/check-links.mjs",
+    "test:quality": "node --test tests/quality.test.mjs",
+    "verify": "npm run lint:md && npm run check && npm run test:quality && npm run build && npm run check:links"
   },
   "dependencies": { "astro": "7.4.4" },
   "devDependencies": {
     "@astrojs/check": "0.9.12",
+    "markdownlint-cli2": "0.24.0",
     "typescript": "6.0.3"
   }
 }
