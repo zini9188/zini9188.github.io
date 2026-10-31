@@ -1,0 +1,36 @@
+name: 글 작성
+description: 개발 기록이나 독서 정리의 주제와 범위를 정합니다.
+title: "[글] "
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 글 종류
+      options:
+        - 개발 기록
+        - 독서 정리
+        - 기타
+    validations:
+      required: true
+  - type: textarea
+    id: topic
+    attributes:
+      label: 주제와 작성 목적
+      description: 무엇을 기록하고 어떤 질문에 답할지 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: outline
+    attributes:
+      label: 다룰 내용
+      description: 목차나 핵심 내용을 적어주세요. 독서 정리는 책 제목과 저자도 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      value: |
+        - [ ] 본문 작성
+        - [ ] 사실·출처·링크·오탈자 확인
+        - [ ] 발행용 PR 작성

@@ -1,0 +1,24 @@
+name: 개선 제안
+description: 블로그 기능이나 운영 방식을 제안합니다.
+title: "[개선] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 해결하려는 문제
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 원하는 변경
+      description: 가능한 방법과 고려할 점을 적어주세요. 디자인은 이슈에서 방향을 먼저 논의합니다.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      description: 어떤 결과면 완료인지 적어주세요.
+    validations:
+      required: true
