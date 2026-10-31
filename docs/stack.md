@@ -7,7 +7,7 @@
 - Markdown: 개발 기록·독서 정리 원본 관리
 - GitHub Actions: PR 검사와 주간 외부 링크 검사
 
-글 목록과 본문에 공통 레이아웃을 사용합니다. 목록에서 분류·태그·검색을 제공하고, 사이드바 접기와 밝은 화면·어두운 화면 전환 상태를 브라우저에 저장합니다. 제목 아래 부제는 표시하지 않으며 목록에 짧은 설명을 사용합니다. 자동 배포는 별도 구성합니다.
+글 목록과 본문에 공통 레이아웃을 사용합니다. 목록에서 분류·태그·검색을 제공하고, 사이드바 접기와 밝은 화면·어두운 화면 전환 상태를 브라우저에 저장합니다. 제목 아래 부제는 표시하지 않으며 목록에 짧은 설명을 사용합니다. main에 병합하면 품질 검사 후 GitHub Pages에 자동 배포합니다.
 
 ## 글 작성
 
@@ -35,3 +35,11 @@ npm run verify
 개별 명령은 `lint:md`, `check`, `test:quality`, `build`, `check:links`입니다. 링크 검사는 빌드된 글과 저장소 문서의 파일·앵커를 확인합니다. 내부 검사는 네트워크를 사용하지 않습니다.
 
 외부 HTTP 링크는 매주 월요일 한국 시간 오전 10시에 별도 워크플로로 검사하며, PR 필수 검사에는 포함하지 않습니다. 수동 실행도 가능합니다.
+
+## 배포
+
+사이트 주소는 [zini9188.github.io](https://zini9188.github.io)입니다. GitHub Pages의 게시 원본은 GitHub Actions를 사용합니다.
+
+`.github/workflows/pages.yml`은 main push 또는 수동 실행 시 Node.js 24로 의존성을 설치하고 `npm run verify`를 수행합니다. 검사가 통과한 `dist/`만 업로드하며, 빌드에 성공한 뒤 `github-pages` 환경으로 배포합니다. 배포 작업에만 `pages: write`와 `id-token: write` 권한을 부여합니다.
+
+발행할 글은 `draft: false`로 설정하고 PR로 main에 병합합니다. Actions의 `Deploy GitHub Pages` 실행에서 배포 결과를 확인할 수 있습니다.
