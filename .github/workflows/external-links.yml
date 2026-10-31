@@ -1,0 +1,29 @@
+name: External links
+on:
+  schedule:
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  external-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ASTRO_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Check external HTTP links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          lycheeVersion: v0.24.2
+          args: --no-ignore --no-progress --scheme http --scheme https --max-retries 2 --timeout 20 -- README.md CONTRIBUTING.md docs dist
+          fail: true
+          failIfEmpty: false
+          jobSummary: true
