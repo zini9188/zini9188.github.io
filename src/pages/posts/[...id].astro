@@ -1,5 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
+import Blog from '../../layouts/Blog.astro';
+import Sidebar from '../../components/Sidebar.astro';
 
 export async function getStaticPaths() {
   return (await getCollection('posts', ({ data }) => !data.draft)).map(post => ({
@@ -10,15 +12,16 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
-<!doctype html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={post.data.description} />
-    <title>{post.data.title}</title>
-  </head>
-  <body>
-    <main><article><h1>{post.data.title}</h1><Content /></article></main>
-  </body>
-</html>
+<Blog title={post.data.title}>
+  <div class="workspace">
+    <Sidebar active={post.data.category} />
+    <article class="article">
+      <a class="back" href="/">← 글 목록</a>
+      <div class="article-meta"><span>{post.data.category === 'reading' ? '독서' : '개발'}</span><time datetime={post.data.pubDate.toISOString()}>{post.data.pubDate.toISOString().slice(0,10).replaceAll('-', '. ')}</time></div>
+      <h1>{post.data.title}</h1>
+      <div class="article-tags">{post.data.tags.map(tag => <a href={`/?tag=${encodeURIComponent(tag)}`}>#{tag}</a>)}</div>
+      <div class="prose"><Content /></div>
+      <a class="back article-back" href="/">← 글 목록으로 돌아가기</a>
+    </article>
+  </div>
+</Blog>

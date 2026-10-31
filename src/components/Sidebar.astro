@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+interface Props { interactive?: boolean; active?: string; }
+const { interactive = false, active = '' } = Astro.props;
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const categories = [{ id: '', name: '전체' }, { id: 'development', name: '개발' }, { id: 'reading', name: '독서' }];
+const tags = [...new Set(posts.flatMap(post => post.data.tags))].sort();
+---
+<aside id="blog-sidebar" class="sidebar" aria-label="글 분류">
+  <div class="filters" role="group" aria-label="글 분류 선택">
+    {categories.map(category => {
+      const count = category.id ? posts.filter(post => post.data.category === category.id).length : posts.length;
+      return interactive
+        ? <button class="filter" data-category={category.id} aria-pressed={category.id === active ? 'true' : 'false'}><span>{category.name}</span><small>{count}</small></button>
+        : <a class="filter" href={category.id ? `/?category=${category.id}` : '/'} aria-current={category.id === active ? 'page' : undefined}><span>{category.name}</span><small>{count}</small></a>;
+    })}
+  </div>
+  <details class="tag-nav" open>
+    <summary>태그</summary>
+    <div class="tag-options" role="group" aria-label="태그 선택">
+      {interactive && <button class="tag-filter" data-tag="" aria-pressed="true"><span>전체 태그</span><small>{posts.length}</small></button>}
+      {tags.map(tag => {
+        const count = posts.filter(post => post.data.tags.includes(tag)).length;
+        return interactive
+          ? <button class="tag-filter" data-tag={tag} aria-pressed="false"><span>#{tag}</span><small>{count}</small></button>
+          : <a class="tag-filter" href={`/?tag=${encodeURIComponent(tag)}`}><span>#{tag}</span><small>{count}</small></a>;
+      })}
+    </div>
+  </details>
+</aside>

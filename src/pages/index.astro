@@ -1,0 +1,68 @@
+---
+import { getCollection } from 'astro:content';
+import Blog from '../layouts/Blog.astro';
+import Sidebar from '../components/Sidebar.astro';
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+---
+<Blog>
+  <div class="workspace">
+  <Sidebar interactive />
+  <section class="notes" aria-labelledby="notes-title">
+    <h1 id="notes-title" class="sr-only">글 목록</h1>
+    <div class="section-heading">
+      <label class="search">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m15.5 15.5 4.5 4.5" /></svg>
+        <span class="sr-only">글 검색</span><input type="search" id="search" placeholder="글 검색" autocomplete="off" />
+      </label>
+    </div>
+    <div class="post-list">
+      {posts.map(post => <article class="post-row" data-category={post.data.category} data-tags={JSON.stringify(post.data.tags)} data-search={[post.data.title, post.data.description, ...post.data.tags].join(' ')}>
+        <time datetime={post.data.pubDate.toISOString()}>{post.data.pubDate.toISOString().slice(0,10).replaceAll('-', '. ')}</time>
+        <div><div class="post-tags">{post.data.tags.map(tag => <span>#{tag}</span>)}</div><h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2><p>{post.data.description}</p></div>
+      </article>)}
+    </div>
+    <div class="empty" id="empty" hidden={posts.length > 0}>
+      <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M14 7h15l8 8v26H14z" /><path d="M29 7v9h8M20 25h11M20 31h7" /></svg>
+      <p id="empty-message">작성된 글이 없습니다.</p>
+    </div>
+    <p class="sr-only" id="results" role="status" aria-live="polite"></p>
+  </section>
+  </div>
+  <script>
+    const search = document.querySelector<HTMLInputElement>('#search');
+    const filters = [...document.querySelectorAll<HTMLButtonElement>('.filter')];
+    const rows = [...document.querySelectorAll<HTMLElement>('.post-row')];
+    const tagButtons = [...document.querySelectorAll<HTMLButtonElement>('.tag-filter')];
+    let selectedTag = new URLSearchParams(location.search).get('tag') || '';
+    if (!tagButtons.some(button => button.dataset.tag === selectedTag)) selectedTag = '';
+    tagButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.tag === selectedTag)));
+    let category = new URLSearchParams(location.search).get('category') || '';
+    if (!filters.some(button => button.dataset.category === category)) category = '';
+    filters.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.category === category)));
+    function update() {
+      const query = (search?.value || '').trim().normalize('NFKC').toLocaleLowerCase('ko');
+      let count = 0;
+      rows.forEach(row => {
+        const tags: string[] = JSON.parse(row.dataset.tags || '[]');
+        row.hidden = !((!category || row.dataset.category === category) && (!selectedTag || tags.includes(selectedTag)) && (row.dataset.search || '').normalize('NFKC').toLocaleLowerCase('ko').includes(query));
+        if (!row.hidden) count++;
+      });
+      document.querySelector<HTMLElement>('#empty')!.hidden = count > 0;
+      document.querySelector<HTMLElement>('#empty-message')!.textContent = rows.length ? '일치하는 글이 없습니다.' : '작성된 글이 없습니다.';
+      document.querySelector<HTMLElement>('#results')!.textContent = `${count}개의 글`;
+    }
+    search?.addEventListener('input', update);
+    tagButtons.forEach(button => button.addEventListener('click', () => {
+      selectedTag = button.dataset.tag || '';
+      tagButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      update();
+    }));
+    filters.forEach(button => button.addEventListener('click', () => {
+      category = button.dataset.category || '';
+      filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      update();
+    }));
+    update();
+  </script>
+</Blog>
